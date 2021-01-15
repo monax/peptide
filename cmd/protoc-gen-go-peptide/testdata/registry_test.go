@@ -7,7 +7,6 @@ package main
 import (
 	"testing"
 
-	"google.golang.org/protobuf/internal/filedesc"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 )
@@ -15,9 +14,6 @@ import (
 func TestRegistry(t *testing.T) {
 	var hasFiles bool
 	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
-		if fd.(*filedesc.File).L2 != nil {
-			t.Errorf("file %q eagerly went through lazy initialization", fd.Path())
-		}
 		hasFiles = true
 		return true
 	})

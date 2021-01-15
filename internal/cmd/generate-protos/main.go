@@ -10,7 +10,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	gengo "github.com/monax/peptide/cmd/protoc-gen-go-peptide/internal_gengo"
 	"go/format"
 	"io/ioutil"
 	"os"
@@ -22,29 +21,50 @@ import (
 	"strconv"
 	"strings"
 
+	gengo "github.com/monax/peptide/cmd/protoc-gen-go-peptide/internal_gengo"
+
 	"google.golang.org/protobuf/compiler/protogen"
 )
+
+const protocGenPrefix = "protoc-gen-"
+const protocGenSuffix = "go-peptide"
+const protocGenBinary = protocGenPrefix + protocGenSuffix
+const generatorPkg = "github.com/monax/peptide"
+const googleProtobufPkg = "google.golang.org/protobuf"
 
 // Override the location of the Go package for various source files.
 // TOOD: Commit these changes upstream.
 var protoPackages = map[string]string{
-	"google/protobuf/any.proto":                  "github.com/monax/peptide/types/known/anypb;anypb",
-	"google/protobuf/api.proto":                  "github.com/monax/peptide/types/known/apipb;apipb",
-	"google/protobuf/duration.proto":             "github.com/monax/peptide/types/known/durationpb;durationpb",
-	"google/protobuf/empty.proto":                "github.com/monax/peptide/types/known/emptypb;emptypb",
-	"google/protobuf/field_mask.proto":           "github.com/monax/peptide/types/known/fieldmaskpb;fieldmaskpb",
-	"google/protobuf/source_context.proto":       "github.com/monax/peptide/types/known/sourcecontextpb;sourcecontextpb",
-	"google/protobuf/struct.proto":               "github.com/monax/peptide/types/known/structpb;structpb",
-	"google/protobuf/timestamp.proto":            "github.com/monax/peptide/types/known/timestamppb;timestamppb",
-	"google/protobuf/type.proto":                 "github.com/monax/peptide/types/known/typepb;typepb",
-	"google/protobuf/wrappers.proto":             "github.com/monax/peptide/types/known/wrapperspb;wrapperspb",
-	"google/protobuf/descriptor.proto":           "github.com/monax/peptide/types/descriptorpb;descriptorpb",
-	"google/protobuf/compiler/plugin.proto":      "github.com/monax/peptide/types/pluginpb;pluginpb",
-	"conformance/conformance.proto":              "github.com/monax/peptide/internal/testprotos/conformance;conformance",
-	"google/protobuf/test_messages_proto2.proto": "github.com/monax/peptide/internal/testprotos/conformance;conformance",
-	"google/protobuf/test_messages_proto3.proto": "github.com/monax/peptide/internal/testprotos/conformance;conformance",
+	"google/protobuf/any.proto":                  "google.golang.org/protobuf/types/known/anypb;anypb",
+	"google/protobuf/api.proto":                  "google.golang.org/protobuf/types/known/apipb;apipb",
+	"google/protobuf/duration.proto":             "google.golang.org/protobuf/types/known/durationpb;durationpb",
+	"google/protobuf/empty.proto":                "google.golang.org/protobuf/types/known/emptypb;emptypb",
+	"google/protobuf/field_mask.proto":           "google.golang.org/protobuf/types/known/fieldmaskpb;fieldmaskpb",
+	"google/protobuf/source_context.proto":       "google.golang.org/protobuf/types/known/sourcecontextpb;sourcecontextpb",
+	"google/protobuf/struct.proto":               "google.golang.org/protobuf/types/known/structpb;structpb",
+	"google/protobuf/timestamp.proto":            "google.golang.org/protobuf/types/known/timestamppb;timestamppb",
+	"google/protobuf/type.proto":                 "google.golang.org/protobuf/types/known/typepb;typepb",
+	"google/protobuf/wrappers.proto":             "google.golang.org/protobuf/types/known/wrapperspb;wrapperspb",
+	"google/protobuf/descriptor.proto":           "google.golang.org/protobuf/types/descriptorpb;descriptorpb",
+	"google/protobuf/compiler/plugin.proto":      "google.golang.org/protobuf/types/pluginpb;pluginpb",
 
-	"cmd/protoc-gen-go-peptide/testdata/nopackage/nopackage.proto": "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/nopackage",
+	//"google/protobuf/any.proto":                  generatorPkg + "/types/known/anypb;anypb",
+	//"google/protobuf/api.proto":                  generatorPkg + "/types/known/apipb;apipb",
+	//"google/protobuf/duration.proto":             generatorPkg + "/types/known/durationpb;durationpb",
+	//"google/protobuf/empty.proto":                generatorPkg + "/types/known/emptypb;emptypb",
+	//"google/protobuf/field_mask.proto":           generatorPkg + "/types/known/fieldmaskpb;fieldmaskpb",
+	//"google/protobuf/source_context.proto":       generatorPkg + "/types/known/sourcecontextpb;sourcecontextpb",
+	//"google/protobuf/struct.proto":               generatorPkg + "/types/known/structpb;structpb",
+	//"google/protobuf/timestamp.proto":            generatorPkg + "/types/known/timestamppb;timestamppb",
+	//"google/protobuf/type.proto":                 generatorPkg + "/types/known/typepb;typepb",
+	//"google/protobuf/wrappers.proto":             generatorPkg + "/types/known/wrapperspb;wrapperspb",
+	//"google/protobuf/descriptor.proto":           generatorPkg + "/types/descriptorpb;descriptorpb",
+	//"google/protobuf/compiler/plugin.proto":      generatorPkg + "/types/pluginpb;pluginpb",
+	//"conformance/conformance.proto":              generatorPkg + "/internal/testprotos/conformance;conformance",
+	//"google/protobuf/test_messages_proto2.proto": generatorPkg + "/internal/testprotos/conformance;conformance",
+	//"google/protobuf/test_messages_proto3.proto": generatorPkg + "/internal/testprotos/conformance;conformance",
+
+	fmt.Sprintf("cmd/%s/testdata/nopackage/nopackage.proto", protocGenBinary): fmt.Sprintf("%s/cmd/%s/testdata/nopackage", generatorPkg, protocGenBinary),
 }
 
 func init() {
@@ -65,14 +85,12 @@ func init() {
 	// we skip running main and instead act as a protoc plugin.
 	// This allows the binary to pass itself to protoc.
 	if plugin := os.Getenv("RUN_AS_PROTOC_PLUGIN"); plugin != "" {
-
 		protogen.Options{}.Run(func(gen *protogen.Plugin) error {
 			for _, file := range gen.Files {
 				if file.Generate {
 					gengo.GenerateVersionMarkers = false
 					gengo.GenerateFile(gen, file)
 					generateIdentifiers(gen, file)
-					generateSouceContextStringer(gen, file)
 				}
 			}
 			gen.SupportedFeatures = gengo.SupportedFeatures
@@ -121,12 +139,19 @@ func generateLocalProtos() {
 		annotateFor map[string]bool
 		exclude     map[string]bool
 	}{
-		{path: "cmd/protoc-gen-go-peptide/testdata", annotateFor: map[string]bool{
-			"cmd/protoc-gen-go-peptide/testdata/annotations/annotations.proto": true},
+		{
+			path: fmt.Sprintf("cmd/%s/testdata", protocGenBinary),
+			annotateFor: map[string]bool{
+				fmt.Sprintf("cmd/%s/testdata/annotations/annotations.proto", protocGenBinary): true,
+			},
 		},
-		{path: "internal/testprotos", exclude: map[string]bool{
-			"internal/testprotos/irregular/irregular.proto": true,
-		}},
+		{
+			path:    "internal/testprotos",
+			exclude: map[string]bool{"internal/testprotos/irregular/irregular.proto": true},
+		},
+		{
+			path: "types",
+		},
 	}
 	excludeRx := regexp.MustCompile(`legacy/.*/`)
 	for _, d := range dirs {
@@ -159,7 +184,7 @@ func generateLocalProtos() {
 				opts += ",annotate_code"
 			}
 
-			protoc("-I"+filepath.Join(protoRoot, "src"), "-I"+repoRoot, "--go_out="+opts+":"+dstDir, relPath)
+			protoc("-I"+filepath.Join(protoRoot, "src"), "-I"+repoRoot, goOutArg(opts, dstDir), relPath)
 			return nil
 		})
 
@@ -195,7 +220,6 @@ func generateRemoteProtos() {
 
 	// Generate all remote proto files.
 	files := []struct{ prefix, path string }{
-		{"", "conformance/conformance.proto"},
 		{"src", "google/protobuf/any.proto"},
 		{"src", "google/protobuf/api.proto"},
 		{"src", "google/protobuf/compiler/plugin.proto"},
@@ -205,18 +229,18 @@ func generateRemoteProtos() {
 		{"src", "google/protobuf/field_mask.proto"},
 		{"src", "google/protobuf/source_context.proto"},
 		{"src", "google/protobuf/struct.proto"},
-		{"src", "google/protobuf/test_messages_proto3.proto"},
 		{"src", "google/protobuf/timestamp.proto"},
 		{"src", "google/protobuf/type.proto"},
 		{"src", "google/protobuf/wrappers.proto"},
 	}
 	for _, f := range files {
-		protoc("-I"+filepath.Join(protoRoot, f.prefix), "--go_out=paths=import,"+protoMapOpt()+":"+tmpDir, f.path)
+		protoc("-I"+filepath.Join(protoRoot, f.prefix), goOutArg(protoMapOpt(), tmpDir), f.path)
 	}
 
 	syncOutput(repoRoot, filepath.Join(tmpDir, modulePath))
 
 	// Sanity check for unsynchronized files.
+	os.RemoveAll(filepath.Join(tmpDir, googleProtobufPkg))
 	os.RemoveAll(filepath.Join(tmpDir, modulePath))
 	check(filepath.Walk(tmpDir, func(path string, fi os.FileInfo, err error) error {
 		if !fi.IsDir() {
@@ -226,12 +250,18 @@ func generateRemoteProtos() {
 	}))
 }
 
+func goOutArg(opts, dir string) string {
+	return fmt.Sprintf("--%s_out=paths=import,%s:%s", protocGenSuffix, opts, dir)
+}
+
 func protoc(args ...string) {
 	// TODO: Remove --experimental_allow_proto3_optional flag.
-	cmd := exec.Command("protoc", "--plugin=protoc-gen-go-peptide="+os.Args[0], "--experimental_allow_proto3_optional")
+	cmd := exec.Command("protoc", fmt.Sprintf("--plugin=%s=%s", protocGenBinary, os.Args[0]), "--experimental_allow_proto3_optional")
 	cmd.Args = append(cmd.Args, args...)
 	cmd.Env = append(os.Environ(), "RUN_AS_PROTOC_PLUGIN=1")
 	out, err := cmd.CombinedOutput()
+	// --go-peptide_out
+	// protoc-gen-go-peptide
 	if err != nil {
 		fmt.Printf("executing: %v\n%s\n", strings.Join(cmd.Args, " "), out)
 	}
@@ -321,66 +351,6 @@ func generateIdentifiers(gen *protogen.Plugin, file *protogen.File) {
 	}
 	processEnums(file.Enums)
 	processMessages(file.Messages)
-}
-
-// generateSouceContextStringer generates the implementation for the
-// protoreflect.SourcePath.String method by using information present
-// in the descriptor.proto.
-func generateSouceContextStringer(gen *protogen.Plugin, file *protogen.File) {
-	if file.Desc.Path() != "google/protobuf/descriptor.proto" {
-		return
-	}
-
-	importPath := modulePath + "/reflect/protoreflect"
-	g := gen.NewGeneratedFile(importPath+"/source_gen.go", protogen.GoImportPath(importPath))
-	for _, s := range generatedPreamble {
-		g.P(s)
-	}
-	g.P("package ", path.Base(importPath))
-	g.P()
-
-	var messages []*protogen.Message
-	for _, message := range file.Messages {
-		if message.Desc.Name() == "FileDescriptorProto" {
-			messages = append(messages, message)
-		}
-	}
-	seen := make(map[*protogen.Message]bool)
-
-	for len(messages) > 0 {
-		m := messages[0]
-		messages = messages[1:]
-		if seen[m] {
-			continue
-		}
-		seen[m] = true
-
-		g.P("func (p *SourcePath) append", m.GoIdent.GoName, "(b []byte) []byte {")
-		g.P("if len(*p) == 0 { return b }")
-		g.P("switch (*p)[0] {")
-		for _, f := range m.Fields {
-			g.P("case ", f.Desc.Number(), ":")
-			var cardinality string
-			switch {
-			case f.Desc.IsMap():
-				panic("maps are not supported")
-			case f.Desc.IsList():
-				cardinality = "Repeated"
-			default:
-				cardinality = "Singular"
-			}
-			nextAppender := "nil"
-			if f.Message != nil {
-				nextAppender = "(*SourcePath).append" + f.Message.GoIdent.GoName
-				messages = append(messages, f.Message)
-			}
-			g.P("b = p.append", cardinality, "Field(b, ", strconv.Quote(string(f.Desc.Name())), ", ", nextAppender, ")")
-		}
-		g.P("}")
-		g.P("return b")
-		g.P("}")
-		g.P()
-	}
 }
 
 func syncOutput(dstDir, srcDir string) {

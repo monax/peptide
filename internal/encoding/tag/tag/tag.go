@@ -32,7 +32,6 @@ const (
 	GoTag
 )
 
-
 // Marshal encodes the protoreflect.FieldDescriptor as a tag.
 //
 // The enumName must be provided if the kind is an enum.

@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build ignore
+
 package main
 
 import (
@@ -17,7 +19,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -82,8 +83,6 @@ func Test(t *testing.T) {
 		if goVersion == golangLatest {
 			runGo("ProtoLegacy", command{Dir: workDir}, "go", "test", "-race", "-tags", "protolegacy", "./...")
 			runGo("ProtocGenGo", command{Dir: "cmd/protoc-gen-go-peptide/testdata"}, "go", "test")
-			runGo("Conformance", command{Dir: "internal/conformance"}, "go", "test", "-execute")
-
 		}
 	}
 	wg.Wait()
@@ -102,6 +101,7 @@ func Test(t *testing.T) {
 		var findings []string
 		for _, finding := range strings.Split(strings.TrimSpace(out), "\n") {
 			switch {
+			case finding == "":
 			case strings.HasPrefix(finding, "internal/testprotos/legacy/"):
 			default:
 				findings = append(findings, finding)
@@ -261,19 +261,6 @@ func mustInitDeps(t *testing.T) {
 	finishWork()
 }
 
-func downloadFile(check func(error), dstPath, srcURL string) {
-	resp, err := http.Get(srcURL)
-	check(err)
-	defer resp.Body.Close()
-
-	check(os.MkdirAll(filepath.Dir(dstPath), 0775))
-	f, err := os.Create(dstPath)
-	check(err)
-
-	_, err = io.Copy(f, resp.Body)
-	check(err)
-}
-
 func downloadArchive(check func(error), dstPath, srcURL, skipPrefix, wantSHA256 string) {
 	check(os.RemoveAll(dstPath))
 
@@ -377,37 +364,6 @@ func mustHandleFlags(t *testing.T) {
 	}
 	if *regenerate || *buildRelease {
 		t.SkipNow()
-	}
-}
-
-var copyrightRegex = []*regexp.Regexp{
-	regexp.MustCompile(`^// Copyright \d\d\d\d The Go Authors\. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file\.
-`),
-	// Generated .pb.go files from main protobuf repo.
-	regexp.MustCompile(`^// Protocol Buffers - Google's data interchange format
-// Copyright \d\d\d\d Google Inc\.  All rights reserved\.
-`),
-}
-
-func mustHaveCopyrightHeader(t *testing.T, files []string) {
-	var bad []string
-File:
-	for _, file := range files {
-		b, err := ioutil.ReadFile(file)
-		if err != nil {
-			t.Fatal(err)
-		}
-		for _, re := range copyrightRegex {
-			if loc := re.FindIndex(b); loc != nil && loc[0] == 0 {
-				continue File
-			}
-		}
-		bad = append(bad, file)
-	}
-	if len(bad) > 0 {
-		t.Fatalf("files with missing/bad copyright headers:\n  %v", strings.Join(bad, "\n  "))
 	}
 }
 
