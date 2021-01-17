@@ -61,7 +61,7 @@ func newFileInfo(file *protogen.File) *fileInfo {
 	}
 	initEnumInfos := func(enums []*protogen.Enum) {
 		for _, enum := range enums {
-			f.allEnums = append(f.allEnums, newEnumInfo(f, enum))
+			f.allEnums = append(f.allEnums, newEnumInfo(enum))
 		}
 	}
 	initMessageInfos := func(messages []*protogen.Message) {
@@ -110,7 +110,7 @@ type enumInfo struct {
 	genRawDescMethod bool
 }
 
-func newEnumInfo(f *fileInfo, enum *protogen.Enum) *enumInfo {
+func newEnumInfo(enum *protogen.Enum) *enumInfo {
 	e := &enumInfo{Enum: enum}
 	e.genJSONMethod = true
 	e.genRawDescMethod = true

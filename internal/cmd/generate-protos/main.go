@@ -35,18 +35,18 @@ const googleProtobufPkg = "google.golang.org/protobuf"
 // Override the location of the Go package for various source files.
 // TOOD: Commit these changes upstream.
 var protoPackages = map[string]string{
-	"google/protobuf/any.proto":                  "google.golang.org/protobuf/types/known/anypb;anypb",
-	"google/protobuf/api.proto":                  "google.golang.org/protobuf/types/known/apipb;apipb",
-	"google/protobuf/duration.proto":             "google.golang.org/protobuf/types/known/durationpb;durationpb",
-	"google/protobuf/empty.proto":                "google.golang.org/protobuf/types/known/emptypb;emptypb",
-	"google/protobuf/field_mask.proto":           "google.golang.org/protobuf/types/known/fieldmaskpb;fieldmaskpb",
-	"google/protobuf/source_context.proto":       "google.golang.org/protobuf/types/known/sourcecontextpb;sourcecontextpb",
-	"google/protobuf/struct.proto":               "google.golang.org/protobuf/types/known/structpb;structpb",
-	"google/protobuf/timestamp.proto":            "google.golang.org/protobuf/types/known/timestamppb;timestamppb",
-	"google/protobuf/type.proto":                 "google.golang.org/protobuf/types/known/typepb;typepb",
-	"google/protobuf/wrappers.proto":             "google.golang.org/protobuf/types/known/wrapperspb;wrapperspb",
-	"google/protobuf/descriptor.proto":           "google.golang.org/protobuf/types/descriptorpb;descriptorpb",
-	"google/protobuf/compiler/plugin.proto":      "google.golang.org/protobuf/types/pluginpb;pluginpb",
+	"google/protobuf/any.proto":             "google.golang.org/protobuf/types/known/anypb;anypb",
+	"google/protobuf/api.proto":             "google.golang.org/protobuf/types/known/apipb;apipb",
+	"google/protobuf/duration.proto":        "google.golang.org/protobuf/types/known/durationpb;durationpb",
+	"google/protobuf/empty.proto":           "google.golang.org/protobuf/types/known/emptypb;emptypb",
+	"google/protobuf/field_mask.proto":      "google.golang.org/protobuf/types/known/fieldmaskpb;fieldmaskpb",
+	"google/protobuf/source_context.proto":  "google.golang.org/protobuf/types/known/sourcecontextpb;sourcecontextpb",
+	"google/protobuf/struct.proto":          "google.golang.org/protobuf/types/known/structpb;structpb",
+	"google/protobuf/timestamp.proto":       "google.golang.org/protobuf/types/known/timestamppb;timestamppb",
+	"google/protobuf/type.proto":            "google.golang.org/protobuf/types/known/typepb;typepb",
+	"google/protobuf/wrappers.proto":        "google.golang.org/protobuf/types/known/wrapperspb;wrapperspb",
+	"google/protobuf/descriptor.proto":      "google.golang.org/protobuf/types/descriptorpb;descriptorpb",
+	"google/protobuf/compiler/plugin.proto": "google.golang.org/protobuf/types/pluginpb;pluginpb",
 
 	//"google/protobuf/any.proto":                  generatorPkg + "/types/known/anypb;anypb",
 	//"google/protobuf/api.proto":                  generatorPkg + "/types/known/apipb;apipb",
@@ -184,7 +184,10 @@ func generateLocalProtos() {
 				opts += ",annotate_code"
 			}
 
-			protoc("-I"+filepath.Join(protoRoot, "src"), "-I"+repoRoot, goOutArg(opts, dstDir), relPath)
+			protoc("-I"+filepath.Join(protoRoot, "src"),
+				"-I"+filepath.Join(repoRoot, "types"),
+				"-I"+repoRoot, goOutArg(opts, dstDir),
+				relPath)
 			return nil
 		})
 
