@@ -14,6 +14,7 @@ import (
 	_ "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/extensions/extra"
 	_ "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/extensions/proto3"
 	_ "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/fieldnames"
+	_ "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/gogo"
 	_ "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/import_public"
 	_ "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/import_public/sub"
 	_ "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/import_public/sub2"

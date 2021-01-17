@@ -1,0 +1,41 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+env:
+  GO_VERSION: ^1.15.6
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Cache protobuf build
+        uses: actions/cache@v2
+        env:
+          cache-name: protobuf
+        with:
+          path: ./.cache
+          # integration_test.go closes in protobuf hash
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('integration_test.go') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '${{ env.GO_VERSION }}'
+
+      - run: go mod vendor
+
+      - name: Regenerate pb.go files
+        run: ./regenerate.bash
+
+      - name: Test files compile etc
+        run: ./test.bash
