@@ -9,8 +9,9 @@ package imports
 
 import (
 	test_a_1 "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/imports/test_a_1"
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 )
@@ -19,6 +20,7 @@ type A1M1 struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	F *test_a_1.M1 `protobuf:"bytes,1,opt,name=f,proto3" json:"f,omitempty"`
 }
@@ -39,6 +41,10 @@ func (x *A1M1) String() string {
 func (*A1M1) ProtoMessage() {}
 
 func (x *A1M1) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *A1M1) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_imports_test_import_a1m1_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))

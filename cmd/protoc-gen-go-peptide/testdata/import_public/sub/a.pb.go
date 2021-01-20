@@ -9,9 +9,10 @@ package sub
 
 import (
 	sub2 "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/import_public/sub2"
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	math "math"
 	reflect "reflect"
 	sync "sync"
@@ -59,16 +60,6 @@ func (x E) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *E) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = E(num)
-	return nil
-}
-
 // Deprecated: Use E.Descriptor instead.
 func (E) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_import_public_sub_a_proto_rawDescGZIP(), []int{0}
@@ -110,16 +101,6 @@ func (M_Subenum) Type() protoreflect.EnumType {
 
 func (x M_Subenum) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Do not use.
-func (x *M_Subenum) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = M_Subenum(num)
-	return nil
 }
 
 // Deprecated: Use M_Subenum.Descriptor instead.
@@ -165,16 +146,6 @@ func (x M_Submessage_Submessage_Subenum) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *M_Submessage_Submessage_Subenum) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = M_Submessage_Submessage_Subenum(num)
-	return nil
-}
-
 // Deprecated: Use M_Submessage_Submessage_Subenum.Descriptor instead.
 func (M_Submessage_Submessage_Subenum) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_import_public_sub_a_proto_rawDescGZIP(), []int{0, 0, 0}
@@ -185,6 +156,7 @@ type M struct {
 	sizeCache       protoimpl.SizeCache
 	unknownFields   protoimpl.UnknownFields
 	extensionFields protoimpl.ExtensionFields
+	peptide.NoopExtender
 
 	// Field using a type in the same Go package, but a different source file.
 	M2 *M2      `protobuf:"bytes,1,opt,name=m2" json:"m2,omitempty"`
@@ -224,6 +196,10 @@ func (x *M) String() string {
 func (*M) ProtoMessage() {}
 
 func (x *M) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *M) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_import_public_sub_a_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -318,6 +294,7 @@ type M_Submessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	// Types that are assignable to SubmessageOneofField:
 	//	*M_Submessage_SubmessageOneofInt32
@@ -341,6 +318,10 @@ func (x *M_Submessage) String() string {
 func (*M_Submessage) ProtoMessage() {}
 
 func (x *M_Submessage) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *M_Submessage) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_import_public_sub_a_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))

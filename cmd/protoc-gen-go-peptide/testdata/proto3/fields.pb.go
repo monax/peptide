@@ -8,8 +8,9 @@
 package proto3
 
 import (
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 )
@@ -61,6 +62,7 @@ type FieldTestMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	OptionalBool     string                               `protobuf:"bytes,1,opt,name=optional_bool,json=optionalBool,proto3" json:"optional_bool,omitempty"`
 	OptionalEnum     FieldTestMessage_Enum                `protobuf:"varint,2,opt,name=optional_enum,json=optionalEnum,proto3,enum=goproto.protoc.proto3.FieldTestMessage_Enum" json:"optional_enum,omitempty"`
@@ -95,7 +97,7 @@ type FieldTestMessage struct {
 	RepeatedDouble   []float64                            `protobuf:"fixed64,214,rep,packed,name=repeated_double,json=repeatedDouble,proto3" json:"repeated_double,omitempty"`
 	RepeatedString   []string                             `protobuf:"bytes,215,rep,name=repeated_string,json=repeatedString,proto3" json:"repeated_string,omitempty"`
 	RepeatedBytes    [][]byte                             `protobuf:"bytes,216,rep,name=repeated_bytes,json=repeatedBytes,proto3" json:"repeated_bytes,omitempty"`
-	Repeated_Message []*FieldTestMessage_Message          `protobuf:"bytes,217,rep,name=repeated_Message,json=repeatedMessage,proto3" json:"repeated_Message,omitempty"`
+	Repeated_Message []FieldTestMessage_Message           `protobuf:"bytes,217,rep,name=repeated_Message,json=repeatedMessage,proto3" json:"repeated_Message,omitempty"`
 	MapInt32Int64    map[int32]int64                      `protobuf:"bytes,500,rep,name=map_int32_int64,json=mapInt32Int64,proto3" json:"map_int32_int64,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
 	MapStringMessage map[string]*FieldTestMessage_Message `protobuf:"bytes,501,rep,name=map_string_message,json=mapStringMessage,proto3" json:"map_string_message,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	MapFixed64Enum   map[uint64]FieldTestMessage_Enum     `protobuf:"bytes,502,rep,name=map_fixed64_enum,json=mapFixed64Enum,proto3" json:"map_fixed64_enum,omitempty" protobuf_key:"fixed64,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3,enum=goproto.protoc.proto3.FieldTestMessage_Enum"`
@@ -117,6 +119,10 @@ func (x *FieldTestMessage) String() string {
 func (*FieldTestMessage) ProtoMessage() {}
 
 func (x *FieldTestMessage) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *FieldTestMessage) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto3_fields_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -364,7 +370,7 @@ func (x *FieldTestMessage) GetRepeatedBytes() [][]byte {
 	return nil
 }
 
-func (x *FieldTestMessage) GetRepeated_Message() []*FieldTestMessage_Message {
+func (x *FieldTestMessage) GetRepeated_Message() []FieldTestMessage_Message {
 	if x != nil {
 		return x.Repeated_Message
 	}
@@ -396,6 +402,7 @@ type FieldTestMessage_Message struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *FieldTestMessage_Message) Reset() {
@@ -414,6 +421,10 @@ func (x *FieldTestMessage_Message) String() string {
 func (*FieldTestMessage_Message) ProtoMessage() {}
 
 func (x *FieldTestMessage_Message) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *FieldTestMessage_Message) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto3_fields_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))

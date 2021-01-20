@@ -10,9 +10,10 @@
 package comments
 
 import (
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 )
@@ -61,16 +62,6 @@ func (x Enum1) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *Enum1) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = Enum1(num)
-	return nil
-}
-
 // Deprecated: Use Enum1.Descriptor instead.
 func (Enum1) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_comments_comments_proto_rawDescGZIP(), []int{0}
@@ -82,6 +73,7 @@ type Message1 struct {
 	sizeCache       protoimpl.SizeCache
 	unknownFields   protoimpl.UnknownFields
 	extensionFields protoimpl.ExtensionFields
+	peptide.NoopExtender
 
 	// COMMENT: Field1A.Leading
 	Field1A *string `protobuf:"bytes,1,opt,name=Field1A" json:"Field1A,omitempty"` // COMMENT: Field1A.Trailing
@@ -108,6 +100,10 @@ func (x *Message1) String() string {
 func (*Message1) ProtoMessage() {}
 
 func (x *Message1) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message1) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_comments_comments_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -170,6 +166,7 @@ type Message2 struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *Message2) Reset() {
@@ -188,6 +185,10 @@ func (x *Message2) String() string {
 func (*Message2) ProtoMessage() {}
 
 func (x *Message2) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message2) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_comments_comments_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -209,6 +210,7 @@ type Message1_Message1A struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *Message1_Message1A) Reset() {
@@ -227,6 +229,10 @@ func (x *Message1_Message1A) String() string {
 func (*Message1_Message1A) ProtoMessage() {}
 
 func (x *Message1_Message1A) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message1_Message1A) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_comments_comments_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -248,6 +254,7 @@ type Message1_Message1B struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *Message1_Message1B) Reset() {
@@ -266,6 +273,10 @@ func (x *Message1_Message1B) String() string {
 func (*Message1_Message1B) ProtoMessage() {}
 
 func (x *Message1_Message1B) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message1_Message1B) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_comments_comments_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -287,6 +298,7 @@ type Message2_Message2A struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *Message2_Message2A) Reset() {
@@ -305,6 +317,10 @@ func (x *Message2_Message2A) String() string {
 func (*Message2_Message2A) ProtoMessage() {}
 
 func (x *Message2_Message2A) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message2_Message2A) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_comments_comments_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -326,6 +342,7 @@ type Message2_Message2B struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *Message2_Message2B) Reset() {
@@ -344,6 +361,10 @@ func (x *Message2_Message2B) String() string {
 func (*Message2_Message2B) ProtoMessage() {}
 
 func (x *Message2_Message2B) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message2_Message2B) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_comments_comments_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))

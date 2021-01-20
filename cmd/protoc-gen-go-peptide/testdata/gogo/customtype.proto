@@ -1,0 +1,16 @@
+// Copyright 2018 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+syntax = "proto3";
+
+package peptide.gogogo;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/gogo";
+
+message CustomTypeMessage {
+  bytes Hash = 1 [(gogoproto.casttype) = "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/gogo.Hash"];
+  int64 Count = 2;
+}

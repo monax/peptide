@@ -8,8 +8,9 @@
 package proto3
 
 import (
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	descriptorpb "google.golang.org/protobuf/types/descriptorpb"
 	reflect "reflect"
 	sync "sync"
@@ -62,6 +63,7 @@ type Message struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *Message) Reset() {
@@ -80,6 +82,10 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_proto3_ext3_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -363,7 +369,7 @@ var file_cmd_protoc_gen_go_peptide_testdata_extensions_proto3_ext3_proto_extType
 	},
 	{
 		ExtendedType:  (*descriptorpb.MessageOptions)(nil),
-		ExtensionType: ([]*Message)(nil),
+		ExtensionType: ([]Message)(nil),
 		Field:         2017,
 		Name:          "goproto.protoc.extension.proto3.repeated_extension_Message",
 		Tag:           "bytes,2017,rep,name=repeated_extension_Message",

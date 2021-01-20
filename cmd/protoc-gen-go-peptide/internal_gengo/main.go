@@ -16,15 +16,14 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/monax/peptide/types/gogoproto"
-	"google.golang.org/protobuf/proto"
+	"github.com/monax/peptide/protoimpl"
 
-	"github.com/monax/peptide/internal/encoding/tag/tag"
+	"github.com/monax/peptide/internal/encoding/tag"
 	"github.com/monax/peptide/internal/genid"
+	"github.com/monax/peptide/types/gogoproto"
 	"github.com/monax/peptide/version"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	"google.golang.org/protobuf/runtime/protoimpl"
 	"google.golang.org/protobuf/types/descriptorpb"
 	"google.golang.org/protobuf/types/pluginpb"
 )
@@ -55,10 +54,12 @@ const (
 var (
 	protoPackage         goImportPath = protogen.GoImportPath("google.golang.org/protobuf/proto")
 	protoifacePackage    goImportPath = protogen.GoImportPath("google.golang.org/protobuf/runtime/protoiface")
-	protoimplPackage     goImportPath = protogen.GoImportPath("google.golang.org/protobuf/runtime/protoimpl")
+	protoimplPackage     goImportPath = protogen.GoImportPath("github.com/monax/peptide/protoimpl")
 	protojsonPackage     goImportPath = protogen.GoImportPath("google.golang.org/protobuf/encoding/protojson")
 	protoreflectPackage  goImportPath = protogen.GoImportPath("google.golang.org/protobuf/reflect/protoreflect")
 	protoregistryPackage goImportPath = protogen.GoImportPath("google.golang.org/protobuf/reflect/protoregistry")
+
+	peptidePackage goImportPath = protogen.GoImportPath("github.com/monax/peptide/types/peptide")
 )
 
 type goImportPath interface {
@@ -223,17 +224,6 @@ func genImport(gen *protogen.Plugin, g *protogen.GeneratedFile, f *fileInfo, imp
 	g.P()
 }
 
-func enumValueName(g *protogen.GeneratedFile, value *protogen.EnumValue) string {
-	enumValueOpts := value.Desc.Options().(*descriptorpb.EnumValueOptions)
-	valueName := proto.GetExtension(enumValueOpts, gogoproto.E_EnumvalueCustomname).(string)
-	if valueName != "" {
-		return valueName
-	}
-	// duplicating behavior of g.P, but directly taking the GoName should
-	// also work because of the syntactic context (const declaration)
-	return g.QualifiedGoIdent(value.GoIdent)
-}
-
 func genEnum(g *protogen.GeneratedFile, f *fileInfo, e *enumInfo) {
 	// Enum type declaration.
 	g.Annotate(e.GoIdent.GoName, e.Location)
@@ -299,20 +289,6 @@ func genEnum(g *protogen.GeneratedFile, f *fileInfo, e *enumInfo) {
 
 	genEnumReflectMethods(g, f, e)
 
-	// UnmarshalJSON method.
-	if e.genJSONMethod && e.Desc.Syntax() == protoreflect.Proto2 {
-		g.P("// Deprecated: Do not use.")
-		g.P("func (x *", e.GoIdent, ") UnmarshalJSON(b []byte) error {")
-		g.P("num, err := ", protoimplPackage.Ident("X"), ".UnmarshalJSONEnum(x.Descriptor(), b)")
-		g.P("if err != nil {")
-		g.P("return err")
-		g.P("}")
-		g.P("*x = ", e.GoIdent, "(num)")
-		g.P("return nil")
-		g.P("}")
-		g.P()
-	}
-
 	// EnumDescriptor method.
 	if e.genRawDescMethod {
 		var indexes []string
@@ -372,6 +348,8 @@ func genMessageInternalFields(g *protogen.GeneratedFile, f *fileInfo, m *message
 		g.P(genid.ExtensionFields_goname, " ", protoimplPackage.Ident("ExtensionFields"))
 		sf.append(genid.ExtensionFields_goname)
 	}
+	g.P(peptidePackage.Ident("NoopExtender"))
+	sf.append(genid.NoopExtend_goname)
 	if sf.count > 0 {
 		g.P()
 	}
@@ -431,8 +409,7 @@ func genMessageField(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo, fie
 
 	// gogo: moretags
 	{
-		fieldOpts := field.Desc.Options().(*descriptorpb.FieldOptions)
-		moreTagsDecl := proto.GetExtension(fieldOpts, gogoproto.E_Moretags).(string)
+		moreTagsDecl := getFieldExtensionString(field, gogoproto.E_Moretags)
 		moreTags := parseMoretags(moreTagsDecl)
 		tags = append(tags, moreTags...)
 	}
@@ -659,6 +636,34 @@ func genMessageSetterMethods(g *protogen.GeneratedFile, f *fileInfo, m *messageI
 	}
 }
 
+func defaultGoTypeName(g *protogen.GeneratedFile, field *protogen.Field) string {
+	switch field.Desc.Kind() {
+	case protoreflect.BoolKind:
+		return "bool"
+	case protoreflect.EnumKind:
+		return g.QualifiedGoIdent(field.Enum.GoIdent)
+	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
+		return "int32"
+	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
+		return "uint32"
+	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
+		return "int64"
+	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
+		return "uint64"
+	case protoreflect.FloatKind:
+		return "float32"
+	case protoreflect.DoubleKind:
+		return "float64"
+	case protoreflect.StringKind:
+		return "string"
+	case protoreflect.BytesKind:
+		return "[]byte"
+	case protoreflect.MessageKind, protoreflect.GroupKind:
+		return g.QualifiedGoIdent(field.Message.GoIdent)
+	}
+	panic(fmt.Errorf("could not determine default Go type for protogen.Field: '%v'", field))
+}
+
 // fieldGoType returns the Go type used for a field.
 //
 // If it returns pointer=true, the struct field is a pointer to the type.
@@ -668,32 +673,31 @@ func fieldGoType(g *protogen.GeneratedFile, f *fileInfo, field *protogen.Field) 
 	}
 
 	pointer = field.Desc.HasPresence()
+
+	nullable := getFieldExtension(field, gogoproto.E_Nullable)
+	if nullable != nil {
+		pointer = nullable.(bool)
+	}
+
+	goType = defaultGoTypeName(g, field)
+
+	customTypeName := getFieldExtensionString(field, gogoproto.E_Casttype, gogoproto.E_Customtype)
+	if customTypeName != "" {
+		goType = g.QualifiedGoIdent(customType(customTypeName))
+	}
+
 	switch field.Desc.Kind() {
-	case protoreflect.BoolKind:
-		goType = "bool"
-	case protoreflect.EnumKind:
-		goType = g.QualifiedGoIdent(field.Enum.GoIdent)
-	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
-		goType = "int32"
-	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
-		goType = "uint32"
-	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
-		goType = "int64"
-	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
-		goType = "uint64"
-	case protoreflect.FloatKind:
-		goType = "float32"
-	case protoreflect.DoubleKind:
-		goType = "float64"
-	case protoreflect.StringKind:
-		goType = "string"
 	case protoreflect.BytesKind:
-		goType = "[]byte"
 		pointer = false // rely on nullability of slices for presence
 	case protoreflect.MessageKind, protoreflect.GroupKind:
-		goType = "*" + g.QualifiedGoIdent(field.Message.GoIdent)
+		star := ""
+		if pointer {
+			star = "*"
+		}
+		goType = star + goType
 		pointer = false // pointer captured as part of the type
 	}
+
 	switch {
 	case field.Desc.IsList():
 		return "[]" + goType, false
@@ -740,11 +744,7 @@ func fieldDefaultValue(g *protogen.GeneratedFile, m *messageInfo, field *protoge
 
 func fieldJSONTagValue(field *protogen.Field) string {
 	// gogo: jsontag
-	var jsontag string
-	{
-		fieldOpt := field.Desc.Options().(*descriptorpb.FieldOptions)
-		jsontag = proto.GetExtension(fieldOpt, gogoproto.E_Jsontag).(string)
-	}
+	jsontag := getFieldExtensionString(field, gogoproto.E_Jsontag)
 	if jsontag == "" {
 		jsontag = string(field.Desc.Name())
 	}

@@ -8,8 +8,9 @@
 package extra
 
 import (
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 )
@@ -18,6 +19,7 @@ type ExtraMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	Data []byte `protobuf:"bytes,1,opt,name=data" json:"data,omitempty"`
 }
@@ -38,6 +40,10 @@ func (x *ExtraMessage) String() string {
 func (*ExtraMessage) ProtoMessage() {}
 
 func (x *ExtraMessage) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *ExtraMessage) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_extra_extra_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))

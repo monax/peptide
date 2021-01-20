@@ -8,8 +8,9 @@
 package proto2
 
 import (
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	math "math"
 	reflect "reflect"
 	sync "sync"
@@ -56,16 +57,6 @@ func (x FieldTestMessage_Enum) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *FieldTestMessage_Enum) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = FieldTestMessage_Enum(num)
-	return nil
-}
-
 // Deprecated: Use FieldTestMessage_Enum.Descriptor instead.
 func (FieldTestMessage_Enum) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_proto2_fields_proto_rawDescGZIP(), []int{0, 0}
@@ -75,6 +66,7 @@ type FieldTestMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	OptionalBool        *bool                                `protobuf:"varint,1,opt,name=optional_bool,json=optionalBool" json:"optional_bool,omitempty"`
 	OptionalEnum        *FieldTestMessage_Enum               `protobuf:"varint,2,opt,name=optional_enum,json=optionalEnum,enum=goproto.protoc.proto2.FieldTestMessage_Enum" json:"optional_enum,omitempty"`
@@ -128,8 +120,8 @@ type FieldTestMessage struct {
 	RepeatedDouble      []float64                            `protobuf:"fixed64,214,rep,name=repeated_double,json=repeatedDouble" json:"repeated_double,omitempty"`
 	RepeatedString      []string                             `protobuf:"bytes,215,rep,name=repeated_string,json=repeatedString" json:"repeated_string,omitempty"`
 	RepeatedBytes       [][]byte                             `protobuf:"bytes,216,rep,name=repeated_bytes,json=repeatedBytes" json:"repeated_bytes,omitempty"`
-	Repeated_Message    []*FieldTestMessage_Message          `protobuf:"bytes,217,rep,name=repeated_Message,json=repeatedMessage" json:"repeated_Message,omitempty"`
-	Repeatedgroup       []*FieldTestMessage_RepeatedGroup    `protobuf:"group,218,rep,name=RepeatedGroup,json=repeatedgroup" json:"repeatedgroup,omitempty"`
+	Repeated_Message    []FieldTestMessage_Message           `protobuf:"bytes,217,rep,name=repeated_Message,json=repeatedMessage" json:"repeated_Message,omitempty"`
+	Repeatedgroup       []FieldTestMessage_RepeatedGroup     `protobuf:"group,218,rep,name=RepeatedGroup,json=repeatedgroup" json:"repeatedgroup,omitempty"`
 	DefaultBool         *bool                                `protobuf:"varint,301,opt,name=default_bool,json=defaultBool,def=1" json:"default_bool,omitempty"`
 	DefaultEnum         *FieldTestMessage_Enum               `protobuf:"varint,302,opt,name=default_enum,json=defaultEnum,enum=goproto.protoc.proto2.FieldTestMessage_Enum,def=1" json:"default_enum,omitempty"`
 	DefaultInt32        *int32                               `protobuf:"varint,303,opt,name=default_int32,json=defaultInt32,def=1" json:"default_int32,omitempty"`
@@ -232,6 +224,10 @@ func (x *FieldTestMessage) String() string {
 func (*FieldTestMessage) ProtoMessage() {}
 
 func (x *FieldTestMessage) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *FieldTestMessage) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto2_fields_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -612,14 +608,14 @@ func (x *FieldTestMessage) GetRepeatedBytes() [][]byte {
 	return nil
 }
 
-func (x *FieldTestMessage) GetRepeated_Message() []*FieldTestMessage_Message {
+func (x *FieldTestMessage) GetRepeated_Message() []FieldTestMessage_Message {
 	if x != nil {
 		return x.Repeated_Message
 	}
 	return nil
 }
 
-func (x *FieldTestMessage) GetRepeatedgroup() []*FieldTestMessage_RepeatedGroup {
+func (x *FieldTestMessage) GetRepeatedgroup() []FieldTestMessage_RepeatedGroup {
 	if x != nil {
 		return x.Repeatedgroup
 	}
@@ -1114,6 +1110,7 @@ type FieldTestMessage_OptionalGroup struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	OptionalGroup *string `protobuf:"bytes,19,opt,name=optional_group,json=optionalGroup" json:"optional_group,omitempty"`
 }
@@ -1134,6 +1131,10 @@ func (x *FieldTestMessage_OptionalGroup) String() string {
 func (*FieldTestMessage_OptionalGroup) ProtoMessage() {}
 
 func (x *FieldTestMessage_OptionalGroup) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *FieldTestMessage_OptionalGroup) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto2_fields_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1161,6 +1162,7 @@ type FieldTestMessage_RequiredGroup struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	RequiredGroup *string `protobuf:"bytes,119,req,name=required_group,json=requiredGroup" json:"required_group,omitempty"`
 }
@@ -1181,6 +1183,10 @@ func (x *FieldTestMessage_RequiredGroup) String() string {
 func (*FieldTestMessage_RequiredGroup) ProtoMessage() {}
 
 func (x *FieldTestMessage_RequiredGroup) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *FieldTestMessage_RequiredGroup) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto2_fields_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1208,6 +1214,7 @@ type FieldTestMessage_RepeatedGroup struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	RepeatedGroup []string `protobuf:"bytes,219,rep,name=repeated_group,json=repeatedGroup" json:"repeated_group,omitempty"`
 }
@@ -1228,6 +1235,10 @@ func (x *FieldTestMessage_RepeatedGroup) String() string {
 func (*FieldTestMessage_RepeatedGroup) ProtoMessage() {}
 
 func (x *FieldTestMessage_RepeatedGroup) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *FieldTestMessage_RepeatedGroup) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto2_fields_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1255,6 +1266,7 @@ type FieldTestMessage_OneofGroup struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	OneofGroupField *string `protobuf:"bytes,619,opt,name=oneof_group_field,json=oneofGroupField" json:"oneof_group_field,omitempty"`
 }
@@ -1275,6 +1287,10 @@ func (x *FieldTestMessage_OneofGroup) String() string {
 func (*FieldTestMessage_OneofGroup) ProtoMessage() {}
 
 func (x *FieldTestMessage_OneofGroup) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *FieldTestMessage_OneofGroup) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto2_fields_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1302,6 +1318,7 @@ type FieldTestMessage_Message struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *FieldTestMessage_Message) Reset() {
@@ -1320,6 +1337,10 @@ func (x *FieldTestMessage_Message) String() string {
 func (*FieldTestMessage_Message) ProtoMessage() {}
 
 func (x *FieldTestMessage_Message) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *FieldTestMessage_Message) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto2_fields_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))

@@ -10,9 +10,10 @@ package ext
 import (
 	base "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/extensions/base"
 	extra "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/extensions/extra"
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 )
@@ -55,16 +56,6 @@ func (x Enum) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *Enum) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = Enum(num)
-	return nil
-}
-
 // Deprecated: Use Enum.Descriptor instead.
 func (Enum) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_rawDescGZIP(), []int{0}
@@ -74,6 +65,7 @@ type Message struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	Data []byte `protobuf:"bytes,1,opt,name=data" json:"data,omitempty"`
 }
@@ -94,6 +86,10 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -121,6 +117,7 @@ type ExtensionGroup struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	ExtensionGroup *string `protobuf:"bytes,120,opt,name=extension_group,json=extensionGroup" json:"extension_group,omitempty"`
 }
@@ -141,6 +138,10 @@ func (x *ExtensionGroup) String() string {
 func (*ExtensionGroup) ProtoMessage() {}
 
 func (x *ExtensionGroup) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *ExtensionGroup) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -169,6 +170,7 @@ type ExtendingMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *ExtendingMessage) Reset() {
@@ -187,6 +189,10 @@ func (x *ExtendingMessage) String() string {
 func (*ExtendingMessage) ProtoMessage() {}
 
 func (x *ExtendingMessage) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *ExtendingMessage) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -207,6 +213,7 @@ type RepeatedGroup struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	RepeatedXGroup []string `protobuf:"bytes,319,rep,name=repeated_x_group,json=repeatedXGroup" json:"repeated_x_group,omitempty"`
 }
@@ -227,6 +234,10 @@ func (x *RepeatedGroup) String() string {
 func (*RepeatedGroup) ProtoMessage() {}
 
 func (x *RepeatedGroup) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *RepeatedGroup) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -256,6 +267,7 @@ type Extendable struct {
 	sizeCache       protoimpl.SizeCache
 	unknownFields   protoimpl.UnknownFields
 	extensionFields protoimpl.ExtensionFields
+	peptide.NoopExtender
 }
 
 func (x *Extendable) Reset() {
@@ -274,6 +286,10 @@ func (x *Extendable) String() string {
 func (*Extendable) ProtoMessage() {}
 
 func (x *Extendable) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Extendable) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -303,6 +319,7 @@ type Message_M struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *Message_M) Reset() {
@@ -321,6 +338,10 @@ func (x *Message_M) String() string {
 func (*Message_M) ProtoMessage() {}
 
 func (x *Message_M) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *Message_M) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -341,6 +362,7 @@ type ExtendingMessage_ExtendingMessageSubmessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *ExtendingMessage_ExtendingMessageSubmessage) Reset() {
@@ -359,6 +381,10 @@ func (x *ExtendingMessage_ExtendingMessageSubmessage) String() string {
 func (*ExtendingMessage_ExtendingMessageSubmessage) ProtoMessage() {}
 
 func (x *ExtendingMessage_ExtendingMessageSubmessage) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *ExtendingMessage_ExtendingMessageSubmessage) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -666,7 +692,7 @@ var file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_extTypes = 
 	},
 	{
 		ExtendedType:  (*base.BaseMessage)(nil),
-		ExtensionType: ([]*Message)(nil),
+		ExtensionType: ([]Message)(nil),
 		Field:         317,
 		Name:          "goproto.protoc.extension.ext.repeated_x_Message",
 		Tag:           "bytes,317,rep,name=repeated_x_Message",
@@ -674,7 +700,7 @@ var file_cmd_protoc_gen_go_peptide_testdata_extensions_ext_ext_proto_extTypes = 
 	},
 	{
 		ExtendedType:  (*base.BaseMessage)(nil),
-		ExtensionType: ([]*RepeatedGroup)(nil),
+		ExtensionType: ([]RepeatedGroup)(nil),
 		Field:         318,
 		Name:          "goproto.protoc.extension.ext.repeatedgroup",
 		Tag:           "group,318,rep,name=RepeatedGroup",

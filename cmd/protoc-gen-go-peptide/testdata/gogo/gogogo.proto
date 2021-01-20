@@ -4,7 +4,7 @@
 
 syntax = "proto3";
 
-package goproto.protoc.gogo;
+package peptide.gogogo;
 
 import "gogoproto/gogo.proto";
 

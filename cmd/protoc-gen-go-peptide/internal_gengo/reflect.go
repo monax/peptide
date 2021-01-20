@@ -309,6 +309,12 @@ func genMessageReflectMethods(g *protogen.GeneratedFile, f *fileInfo, m *message
 
 	// ProtoReflect method.
 	g.P("func (x *", m.GoIdent, ") ProtoReflect() ", protoreflectPackage.Ident("Message"), " {")
+	g.P("return x.ProtoExtend(x.protoReflect())")
+	g.P("}")
+	g.P()
+
+	// ProtoReflect method.
+	g.P("func (x *", m.GoIdent, ") protoReflect() ", protoreflectPackage.Ident("Message"), " {")
 	g.P("mi := &", typesVar, "[", idx, "]")
 	g.P("if ", protoimplPackage.Ident("UnsafeEnabled"), " && x != nil {")
 	g.P("ms := ", protoimplPackage.Ident("X"), ".MessageStateOf(", protoimplPackage.Ident("Pointer"), "(x))")
