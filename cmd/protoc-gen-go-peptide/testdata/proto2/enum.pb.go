@@ -8,8 +8,9 @@
 package proto2
 
 import (
+	protoimpl "github.com/monax/peptide/protoimpl"
+	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 )
@@ -58,16 +59,6 @@ func (x EnumType1) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *EnumType1) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = EnumType1(num)
-	return nil
-}
-
 // Deprecated: Use EnumType1.Descriptor instead.
 func (EnumType1) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_proto2_enum_proto_rawDescGZIP(), []int{0}
@@ -112,16 +103,6 @@ func (EnumType2) Type() protoreflect.EnumType {
 
 func (x EnumType2) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Do not use.
-func (x *EnumType2) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = EnumType2(num)
-	return nil
 }
 
 // Deprecated: Use EnumType2.Descriptor instead.
@@ -169,16 +150,6 @@ func (x EnumContainerMessage1_NestedEnumType1A) Number() protoreflect.EnumNumber
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *EnumContainerMessage1_NestedEnumType1A) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = EnumContainerMessage1_NestedEnumType1A(num)
-	return nil
-}
-
 // Deprecated: Use EnumContainerMessage1_NestedEnumType1A.Descriptor instead.
 func (EnumContainerMessage1_NestedEnumType1A) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_proto2_enum_proto_rawDescGZIP(), []int{0, 0}
@@ -220,16 +191,6 @@ func (EnumContainerMessage1_NestedEnumType1B) Type() protoreflect.EnumType {
 
 func (x EnumContainerMessage1_NestedEnumType1B) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Do not use.
-func (x *EnumContainerMessage1_NestedEnumType1B) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = EnumContainerMessage1_NestedEnumType1B(num)
-	return nil
 }
 
 // Deprecated: Use EnumContainerMessage1_NestedEnumType1B.Descriptor instead.
@@ -277,16 +238,6 @@ func (x EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2A) Number() p
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2A) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2A(num)
-	return nil
-}
-
 // Deprecated: Use EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2A.Descriptor instead.
 func (EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2A) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_proto2_enum_proto_rawDescGZIP(), []int{0, 0, 0}
@@ -330,16 +281,6 @@ func (x EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2B) Number() p
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Do not use.
-func (x *EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2B) UnmarshalJSON(b []byte) error {
-	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
-	if err != nil {
-		return err
-	}
-	*x = EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2B(num)
-	return nil
-}
-
 // Deprecated: Use EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2B.Descriptor instead.
 func (EnumContainerMessage1_EnumContainerMessage2_NestedEnumType2B) EnumDescriptor() ([]byte, []int) {
 	return file_cmd_protoc_gen_go_peptide_testdata_proto2_enum_proto_rawDescGZIP(), []int{0, 0, 1}
@@ -349,6 +290,7 @@ type EnumContainerMessage1 struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 
 	DefaultDuplicate1 *EnumType2 `protobuf:"varint,1,opt,name=default_duplicate1,json=defaultDuplicate1,enum=goproto.protoc.proto2.EnumType2,def=1" json:"default_duplicate1,omitempty"`
 	DefaultDuplicate2 *EnumType2 `protobuf:"varint,2,opt,name=default_duplicate2,json=defaultDuplicate2,enum=goproto.protoc.proto2.EnumType2,def=1" json:"default_duplicate2,omitempty"`
@@ -376,6 +318,10 @@ func (x *EnumContainerMessage1) String() string {
 func (*EnumContainerMessage1) ProtoMessage() {}
 
 func (x *EnumContainerMessage1) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *EnumContainerMessage1) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto2_enum_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -410,6 +356,7 @@ type EnumContainerMessage1_EnumContainerMessage2 struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+	peptide.NoopExtender
 }
 
 func (x *EnumContainerMessage1_EnumContainerMessage2) Reset() {
@@ -428,6 +375,10 @@ func (x *EnumContainerMessage1_EnumContainerMessage2) String() string {
 func (*EnumContainerMessage1_EnumContainerMessage2) ProtoMessage() {}
 
 func (x *EnumContainerMessage1_EnumContainerMessage2) ProtoReflect() protoreflect.Message {
+	return x.ProtoExtend(x.protoReflect())
+}
+
+func (x *EnumContainerMessage1_EnumContainerMessage2) protoReflect() protoreflect.Message {
 	mi := &file_cmd_protoc_gen_go_peptide_testdata_proto2_enum_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))

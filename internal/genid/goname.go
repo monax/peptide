@@ -22,4 +22,6 @@ const (
 	ExtensionFieldsB_goname = "XXX_extensions"
 
 	WeakFieldPrefix_goname = "XXX_weak_"
+
+	NoopExtend_goname = "NoopExtender"
 )

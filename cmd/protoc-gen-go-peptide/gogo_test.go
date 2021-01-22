@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/gogo"
@@ -9,20 +10,25 @@ import (
 )
 
 func TestGogo(t *testing.T) {
-	t.Run("Test gogogo", func(t *testing.T) {
-		msg := &gogo.TestMessage{
-			WithMoreTags: "tagly",
-			WithJsonTag:  false,
-			Fruit:        gogo.Apples,
-		}
-		bs, err := proto.Marshal(msg)
-		require.NoError(t, err)
-		if err != nil {
-			t.Fatal(err)
-		}
-		msgOut := new(gogo.TestMessage)
-		err = proto.Unmarshal(bs, msgOut)
-		require.NoError(t, err)
-		require.True(t, proto.Equal(msg, msgOut))
+	//roundtrip(t, &gogo.TestMessage{
+	//	WithMoreTags: "tagly",
+	//	WithJsonTag:  false,
+	//	Fruit:        gogo.Apples,
+	//})
+	roundtrip(t, &gogo.CustomTypeMessage{
+		Hash: gogo.Hash{1, 2, 3},
 	})
+}
+
+func roundtrip(t *testing.T, msg proto.Message) {
+	bs, err := proto.Marshal(msg)
+	require.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rt := reflect.TypeOf(msg).Elem()
+	msgOut := reflect.New(rt).Interface().(proto.Message)
+	err = proto.Unmarshal(bs, msgOut)
+	require.NoError(t, err)
+	require.True(t, proto.Equal(msg, msgOut))
 }
