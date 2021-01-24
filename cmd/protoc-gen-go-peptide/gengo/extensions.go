@@ -1,4 +1,4 @@
-package internal_gengo
+package gengo
 
 import (
 	"strings"

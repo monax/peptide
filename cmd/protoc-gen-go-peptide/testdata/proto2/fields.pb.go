@@ -8,9 +8,9 @@
 package proto2
 
 import (
-	protoimpl "github.com/monax/peptide/protoimpl"
 	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	math "math"
 	reflect "reflect"
 	sync "sync"

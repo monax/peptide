@@ -9,9 +9,9 @@ package import_public
 
 import (
 	sub2 "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/import_public/sub2"
-	protoimpl "github.com/monax/peptide/protoimpl"
 	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 )

@@ -12,9 +12,9 @@ import (
 	test_a_1 "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/imports/test_a_1"
 	_ "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/imports/test_a_2"
 	test_b_1 "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/imports/test_b_1"
-	protoimpl "github.com/monax/peptide/protoimpl"
 	peptide "github.com/monax/peptide/types/peptide"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 )

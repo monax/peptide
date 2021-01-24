@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package internal_gengo is internal to the protobuf module.
-package internal_gengo
+package gengo
 
 import (
 	"fmt"
@@ -16,14 +16,13 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/monax/peptide/protoimpl"
-
 	"github.com/monax/peptide/internal/encoding/tag"
 	"github.com/monax/peptide/internal/genid"
 	"github.com/monax/peptide/types/gogoproto"
 	"github.com/monax/peptide/version"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/runtime/protoimpl"
 	"google.golang.org/protobuf/types/descriptorpb"
 	"google.golang.org/protobuf/types/pluginpb"
 )
@@ -54,7 +53,7 @@ const (
 var (
 	protoPackage         goImportPath = protogen.GoImportPath("google.golang.org/protobuf/proto")
 	protoifacePackage    goImportPath = protogen.GoImportPath("google.golang.org/protobuf/runtime/protoiface")
-	protoimplPackage     goImportPath = protogen.GoImportPath("github.com/monax/peptide/protoimpl")
+	protoimplPackage     goImportPath = protogen.GoImportPath("google.golang.org/protobuf/runtime/protoimpl")
 	protojsonPackage     goImportPath = protogen.GoImportPath("google.golang.org/protobuf/encoding/protojson")
 	protoreflectPackage  goImportPath = protogen.GoImportPath("google.golang.org/protobuf/reflect/protoreflect")
 	protoregistryPackage goImportPath = protogen.GoImportPath("google.golang.org/protobuf/reflect/protoregistry")
@@ -359,7 +358,7 @@ func genMessageField(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo, fie
 	if oneof := field.Oneof; oneof != nil && !oneof.Desc.IsSynthetic() {
 		// It would be a bit simpler to iterate over the oneofs below,
 		// but generating the field here keeps the contents of the Go
-		// struct in the same order as the contents of the source
+		// struct in the same order as the contents google.golang.org/protobuf/runtimeof the source
 		// .proto file.
 		if oneof.Fields[0] != field {
 			return // only generate for first appearance

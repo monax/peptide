@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"strings"
 
-	gengo "github.com/monax/peptide/cmd/protoc-gen-go-peptide/internal_gengo"
+	gengo "github.com/monax/peptide/cmd/protoc-gen-go-peptide/gengo"
 
 	"google.golang.org/protobuf/compiler/protogen"
 )
