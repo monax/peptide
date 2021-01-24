@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/gogo"
 	"reflect"
 	"testing"
 
-	"github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/gogo"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 )
@@ -16,7 +16,9 @@ func TestGogo(t *testing.T) {
 	//	Fruit:        gogo.Apples,
 	//})
 	roundtrip(t, &gogo.CustomTypeMessage{
-		Hash: gogo.Hash{1, 2, 3},
+		CustomTypeMessagePB: gogo.CustomTypeMessagePB{
+			Hash: gogo.Hash{1, 2, 3},
+		},
 	})
 }
 

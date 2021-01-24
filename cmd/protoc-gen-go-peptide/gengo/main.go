@@ -98,6 +98,12 @@ func GenerateFile(gen *protogen.Plugin, file *protogen.File) *protogen.Generated
 		genEnum(g, f, enum)
 	}
 	for _, message := range f.allMessages {
+		customFields := getCustomFields(file, message.Message)
+		// Only pay for the complexity we use
+		if len(customFields) > 0 {
+			genMessageWrapper(g, message, customFields)
+			message.GoIdent = pbIdent(message.GoIdent)
+		}
 		genMessage(g, f, message)
 	}
 	genExtensions(g, f)
@@ -105,6 +111,13 @@ func GenerateFile(gen *protogen.Plugin, file *protogen.File) *protogen.Generated
 	genReflectFileDescriptor(gen, g, f)
 
 	return g
+}
+
+func pbIdent(ident protogen.GoIdent) protogen.GoIdent {
+	return protogen.GoIdent{
+		GoName:       ident.GoName + "PB",
+		GoImportPath: ident.GoImportPath,
+	}
 }
 
 // genStandaloneComments prints all leading comments for a FileDescriptorProto
@@ -239,7 +252,7 @@ func genEnum(g *protogen.GeneratedFile, f *fileInfo, e *enumInfo) {
 			value.Desc.Options().(*descriptorpb.EnumValueOptions).GetDeprecated())
 
 		// gogo: enumvalue_customname
-		valueName := enumValueName(g, value)
+		valueName := getEnumValueName(g, value)
 
 		g.P(leadingComments,
 			valueName, " ", e.GoIdent, " = ", value.Desc.Number(),
@@ -303,6 +316,47 @@ func genEnum(g *protogen.GeneratedFile, f *fileInfo, e *enumInfo) {
 	}
 }
 
+// TODO: wrappedMessageInfo (original name)
+
+func genMessageWrapper(g *protogen.GeneratedFile, m *messageInfo, fields []*customField) {
+	if m.Desc.IsMapEntry() {
+		return
+	}
+
+	// Message type declaration.
+	g.Annotate(m.GoIdent.GoName, m.Location)
+	leadingComments := appendDeprecationSuffix(m.Comments.Leading,
+		m.Desc.Options().(*descriptorpb.MessageOptions).GetDeprecated())
+	g.P(leadingComments,
+		"type ", m.GoIdent, " struct {")
+	g.P(m.GoIdent)
+	for _, field := range fields {
+		genWrapperField(g, m, field)
+	}
+	g.P("}")
+	g.P()
+}
+
+func genWrapperField(g *protogen.GeneratedFile, m *messageInfo, field *customField) {
+	name := field.GoName
+	if field.Desc.IsWeak() {
+		name = genid.WeakFieldPrefix_goname + name
+	}
+	tags := structTags{
+		// TODO: as needed point to wrapped field
+		{"peptide", "wraps=" + g.QualifiedGoIdent(pbIdent(m.GoIdent))},
+		{"protobuf", fieldProtobufTagValue(field.Field)},
+		{"json", fieldJSONTagValue(field.Field)},
+	}
+	g.Annotate(m.GoIdent.GoName+"."+name, field.Location)
+	leadingComments := appendDeprecationSuffix(field.Comments.Leading,
+		field.Desc.Options().(*descriptorpb.FieldOptions).GetDeprecated())
+	g.P(leadingComments,
+		name, " ", field.goType(g), tags,
+		trailingComment(field.Comments.Trailing))
+}
+
+// The internal protobuf-impl compatible message`
 func genMessage(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo) {
 	if m.Desc.IsMapEntry() {
 		return
@@ -326,13 +380,13 @@ func genMessage(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo) {
 
 func genMessageFields(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo) {
 	sf := f.allMessageFieldsByPtr[m]
-	genMessageInternalFields(g, f, m, sf)
+	genMessageInternalFields(g, m, sf)
 	for _, field := range m.Fields {
 		genMessageField(g, f, m, field, sf)
 	}
 }
 
-func genMessageInternalFields(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo, sf *structFields) {
+func genMessageInternalFields(g *protogen.GeneratedFile, m *messageInfo, sf *structFields) {
 	g.P(genid.State_goname, " ", protoimplPackage.Ident("MessageState"))
 	sf.append(genid.State_goname)
 	g.P(genid.SizeCache_goname, " ", protoimplPackage.Ident("SizeCache"))
@@ -503,10 +557,12 @@ func genMessageBaseMethods(g *protogen.GeneratedFile, f *fileInfo, m *messageInf
 	g.P()
 
 	// String method.
-	g.P("func (x *", m.GoIdent, ") String() string {")
-	g.P("return ", protoimplPackage.Ident("X"), ".MessageStringOf(x)")
-	g.P("}")
-	g.P()
+	if getMessageExtensionBool(m.Message, gogoproto.E_GoprotoStringer, true) {
+		g.P("func (x *", m.GoIdent, ") String() string {")
+		g.P("return ", protoimplPackage.Ident("X"), ".MessageStringOf(x)")
+		g.P("}")
+		g.P()
+	}
 
 	// ProtoMessage method.
 	g.P("func (*", m.GoIdent, ") ProtoMessage() {}")
@@ -566,47 +622,49 @@ func genMessageGetterMethods(g *protogen.GeneratedFile, f *fileInfo, m *messageI
 		}
 
 		// Getter for message field.
-		goType, pointer := fieldGoType(g, f, field)
-		defaultValue := fieldDefaultValue(g, m, field)
-		g.Annotate(m.GoIdent.GoName+".Get"+field.GoName, field.Location)
-		leadingComments := appendDeprecationSuffix("",
-			field.Desc.Options().(*descriptorpb.FieldOptions).GetDeprecated())
-		switch {
-		case field.Desc.IsWeak():
-			g.P(leadingComments, "func (x *", m.GoIdent, ") Get", field.GoName, "() ", protoPackage.Ident("Message"), "{")
-			g.P("var w ", protoimplPackage.Ident("WeakFields"))
-			g.P("if x != nil {")
-			g.P("w = x.", genid.WeakFields_goname)
-			if m.isTracked {
-				g.P("_ = x.", genid.WeakFieldPrefix_goname+field.GoName)
-			}
-			g.P("}")
-			g.P("return ", protoimplPackage.Ident("X"), ".GetWeak(w, ", field.Desc.Number(), ", ", strconv.Quote(string(field.Message.Desc.FullName())), ")")
-			g.P("}")
-		case field.Oneof != nil && !field.Oneof.Desc.IsSynthetic():
-			g.P(leadingComments, "func (x *", m.GoIdent, ") Get", field.GoName, "() ", goType, " {")
-			g.P("if x, ok := x.Get", field.Oneof.GoName, "().(*", field.GoIdent, "); ok {")
-			g.P("return x.", field.GoName)
-			g.P("}")
-			g.P("return ", defaultValue)
-			g.P("}")
-		default:
-			g.P(leadingComments, "func (x *", m.GoIdent, ") Get", field.GoName, "() ", goType, " {")
-			if !field.Desc.HasPresence() || defaultValue == "nil" {
+		if getMessageExtensionBool(m.Message, gogoproto.E_GoprotoGetters, true) {
+			goType, pointer := fieldGoType(g, f, field)
+			defaultValue := fieldDefaultValue(g, m, field)
+			g.Annotate(m.GoIdent.GoName+".Get"+field.GoName, field.Location)
+			leadingComments := appendDeprecationSuffix("",
+				field.Desc.Options().(*descriptorpb.FieldOptions).GetDeprecated())
+			switch {
+			case field.Desc.IsWeak():
+				g.P(leadingComments, "func (x *", m.GoIdent, ") Get", field.GoName, "() ", protoPackage.Ident("Message"), "{")
+				g.P("var w ", protoimplPackage.Ident("WeakFields"))
 				g.P("if x != nil {")
-			} else {
-				g.P("if x != nil && x.", field.GoName, " != nil {")
+				g.P("w = x.", genid.WeakFields_goname)
+				if m.isTracked {
+					g.P("_ = x.", genid.WeakFieldPrefix_goname+field.GoName)
+				}
+				g.P("}")
+				g.P("return ", protoimplPackage.Ident("X"), ".GetWeak(w, ", field.Desc.Number(), ", ", strconv.Quote(string(field.Message.Desc.FullName())), ")")
+				g.P("}")
+			case field.Oneof != nil && !field.Oneof.Desc.IsSynthetic():
+				g.P(leadingComments, "func (x *", m.GoIdent, ") Get", field.GoName, "() ", goType, " {")
+				g.P("if x, ok := x.Get", field.Oneof.GoName, "().(*", field.GoIdent, "); ok {")
+				g.P("return x.", field.GoName)
+				g.P("}")
+				g.P("return ", defaultValue)
+				g.P("}")
+			default:
+				g.P(leadingComments, "func (x *", m.GoIdent, ") Get", field.GoName, "() ", goType, " {")
+				if !field.Desc.HasPresence() || defaultValue == "nil" {
+					g.P("if x != nil {")
+				} else {
+					g.P("if x != nil && x.", field.GoName, " != nil {")
+				}
+				star := ""
+				if pointer {
+					star = "*"
+				}
+				g.P("return ", star, " x.", field.GoName)
+				g.P("}")
+				g.P("return ", defaultValue)
+				g.P("}")
 			}
-			star := ""
-			if pointer {
-				star = "*"
-			}
-			g.P("return ", star, " x.", field.GoName)
-			g.P("}")
-			g.P("return ", defaultValue)
-			g.P("}")
+			g.P()
 		}
-		g.P()
 	}
 }
 
@@ -673,16 +731,12 @@ func fieldGoType(g *protogen.GeneratedFile, f *fileInfo, field *protogen.Field) 
 
 	pointer = field.Desc.HasPresence()
 
-	nullable := getFieldExtension(field, gogoproto.E_Nullable)
-	if nullable != nil {
-		pointer = nullable.(bool)
-	}
-
 	goType = defaultGoTypeName(g, field)
 
-	customTypeName := getFieldExtensionString(field, gogoproto.E_Casttype, gogoproto.E_Customtype)
+	customTypeName := getFieldExtensionString(field, gogoproto.E_Casttype)
 	if customTypeName != "" {
-		goType = g.QualifiedGoIdent(customType(customTypeName))
+		ident := getCustomType(f.File, customTypeName)
+		goType = g.QualifiedGoIdent(ident)
 	}
 
 	switch field.Desc.Kind() {
@@ -735,7 +789,7 @@ func fieldDefaultValue(g *protogen.GeneratedFile, m *messageInfo, field *protoge
 	case protoreflect.MessageKind, protoreflect.GroupKind, protoreflect.BytesKind:
 		return "nil"
 	case protoreflect.EnumKind:
-		return enumValueName(g, field.Enum.Values[0])
+		return getEnumValueName(g, field.Enum.Values[0])
 	default:
 		return "0"
 	}

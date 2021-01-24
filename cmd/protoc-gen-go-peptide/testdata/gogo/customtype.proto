@@ -11,6 +11,9 @@ import "gogoproto/gogo.proto";
 option go_package = "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/gogo";
 
 message CustomTypeMessage {
+  option (gogoproto.goproto_stringer) = false;
   bytes Hash = 1 [(gogoproto.casttype) = "github.com/monax/peptide/cmd/protoc-gen-go-peptide/testdata/gogo.Hash"];
   int64 Count = 2;
+  bytes Hash2 = 3 [(gogoproto.casttype) = "Hash"];
+  bytes Hash3 = 4 [(gogoproto.customtype) = "Hash"];
 }
